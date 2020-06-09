@@ -20,12 +20,12 @@ namespace FlightMobileApp.Controllers
         }
 
         // GET: api/Screenshot   -----need to change it to without api
-        [HttpGet]
-        public ActionResult<image> GetScreenshot(object value)
+        //[HttpGet]
+        /*public ActionResult<image> GetScreenshot(object value)
         {
 
             simModel.getScreenshot();
 
-        }
+        }*/
     }
 }

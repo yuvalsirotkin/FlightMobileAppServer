@@ -11,8 +11,8 @@ namespace FlightMobileApp.Models
     {
         [Key]
         public double Aileron { get; set; }
-        public double rudder { get; set; }
-        public double elevator { get; set; }
-        public double throttle { get; set; }
+        public double Rudder { get; set; }
+        public double Elevator { get; set; }
+        public double Throttle { get; set; }
     }
 }
