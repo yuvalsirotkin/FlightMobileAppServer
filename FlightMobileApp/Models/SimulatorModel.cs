@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
+using System.ComponentModel;
 
 namespace FlightMobileApp.Models
 {
@@ -22,7 +23,11 @@ namespace FlightMobileApp.Models
         private readonly object bBalanceLockForImg = new object();
         private bool ShouldAdd;
         private bool GerImgReq;
+        //member Error Log
+        private string errlog = "";
 
+        // event
+        public event PropertyChangedEventHandler PropertyChanged;
         public SimulatorModel(TcpClient T)
         {
             this.ShouldStop = false;
@@ -35,22 +40,30 @@ namespace FlightMobileApp.Models
             if (TCPClient.ReceiveTimeout == 10000)
                 Debug.WriteLine("The receive time out limit was successfully set " + TCPClient.ReceiveTimeout.ToString());
         }
+        //property
+        public string Errlog
+        {
+            get { return errlog; }
+            set
+            {
+                errlog = value;
+                NotifyPropertyChanged("Errlog");
+            }
+        }
 
-        public bool SendCommand(Command command)
+        public void SendCommand(Command command)
         {
             SetAileron(command.Aileron);
             SetThrottle(command.Throttle);
             SetDirection(command.Rudder, command.Elevator);
-            return true;
         }
 
-        public bool getScreenshot()
+        public void getScreenshot()
         {
             lock (bBalanceLockForImg)
             {
                 this.GerImgReq = true;
             }
-            return true;
         }
         
         // commands for set the value of aileron ,add the path to the send list
@@ -185,8 +198,8 @@ namespace FlightMobileApp.Models
         // catch the exp if the server ip or port does not exsit 
         public void Connect(string ip, int port)
         {
-            TCPClient.Connect(ip, port);
-            this.Start(); //*****thread!!!
+            //TCPClient.Connect(ip, port);
+           // this.Start(); //*****thread!!!
 
         }
 
@@ -249,14 +262,20 @@ namespace FlightMobileApp.Models
                             }
                             else
                             {
-                                //Errlog = "The connection was forcibly closed by the remote host, please go back to the main menu and try again";
+                                Errlog = "error";
                             }
-                            //this.DataToSend.Clear();
                         }
                     }
                 }
             });
             T.Start();
+        }
+
+        // this method activate the observable DP 
+        public void NotifyPropertyChanged(string propName)
+        {
+            if (this.PropertyChanged != null)
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
         }
     }
 }

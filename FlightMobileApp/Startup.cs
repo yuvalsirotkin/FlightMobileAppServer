@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace FlightMobileApp
 {

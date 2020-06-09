@@ -9,36 +9,48 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FlightMobileApp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class CommandController : ControllerBase
     {
         private readonly SimulatorModel simModel;
-        public CommandController(SimulatorModel MysimModel)
+        public CommandController()
         {
-            simModel = MysimModel;
+            int port = 5402;
+            this.simModel = new SimulatorModel(new TcpClient());
+            simModel.Connect("127.0.0.1", port);
         }
 
-       
-        [HttpPost]
+        //Error log property
+        public string VM_Errlog
+        {
+            get
+            {
+                return simModel.Errlog;
+            }
+        }
+
+
+        [HttpPost("command")]
         public ActionResult PostCommand(Command command)
         {
             // if the data is invalid - return error         ------------------------change to command invalid test
-            if (command.throttle > 1 || command.throttle < 0 ||
+            if (command.Throttle > 1 || command.Throttle < 0 ||
                 command.Aileron > 1 || command.Aileron < -1 ||
-                command.elevator > 1 || command.elevator < -1 ||
-                command.rudder > 1 || command.rudder < -1)
+                command.Elevator > 1 || command.Elevator < -1 ||
+                command.Rudder > 1 || command.Rudder < -1)
             {
                 Response.StatusCode = 422;
                 return Content("Invalid data");
                 //return BadRequest();
             }
 
-            if (!simModel.SendCommand(command))
+            simModel.SendCommand(command);
+            if(this.VM_Errlog == "error")
             {
                 Response.StatusCode = 422;  // change to the right status code
                 return Content("Invalid data");
-            }
+            } 
             else
             {
                 return Ok(); // check that
