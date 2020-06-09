@@ -220,7 +220,7 @@ namespace FlightMobileApp.Models
                         }
                     }
                      /**
-                      * 
+                      * send Post command to flight gear
                       */
                     lock (bBalanceLock)
                     {
