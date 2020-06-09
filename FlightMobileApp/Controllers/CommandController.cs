@@ -19,7 +19,7 @@ namespace FlightMobileApp.Controllers
             simModel = MysimModel;
         }
 
-
+       
         [HttpPost]
         public ActionResult PostCommand(Command command)
         {
@@ -34,7 +34,7 @@ namespace FlightMobileApp.Controllers
                 //return BadRequest();
             }
 
-            if (simModel.SendCommand(command) != 0)
+            if (!simModel.SendCommand(command))
             {
                 Response.StatusCode = 422;  // change to the right status code
                 return Content("Invalid data");

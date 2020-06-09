@@ -8,9 +8,14 @@ namespace FlightMobileApp.Models
     public class SimulatorModel
     {
 
-        public int SendCommand(Command command)
+        public bool SendCommand(Command command)
         {
-            return 0;
+            return true;
+        }
+
+        public bool getScreenshot()
+        {
+            return true;
         }
 
     }
