@@ -16,7 +16,7 @@ namespace FlightMobileApp.Models
         [JsonPropertyName("aileron")]
         public double Aileron { get; set; }
 
-        [JsonProperty("rudder")]
+        [JsonProperty("rudder")] 
         [JsonPropertyName("rudder")]
         public double Rudder { get; set; }
 

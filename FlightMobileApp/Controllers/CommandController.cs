@@ -19,7 +19,7 @@ namespace FlightMobileApp.Controllers
             int port = 12345;
             this.simModel = new SimulatorModel(new TcpClient());
             simModel.Connect("127.0.0.1", port);
-        }
+        } 
 
         //Error log property
         public string VM_Errlog

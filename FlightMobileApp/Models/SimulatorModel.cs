@@ -201,7 +201,7 @@ namespace FlightMobileApp.Models
            TCPClient.Connect(ip, port);
            this.Start(); //*****thread!!!
 
-        }
+        } 
 
         // ShouldStop the thread and log out
         public void Disconnect()
