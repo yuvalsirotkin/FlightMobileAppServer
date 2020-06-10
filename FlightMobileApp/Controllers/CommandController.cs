@@ -16,7 +16,7 @@ namespace FlightMobileApp.Controllers
         private readonly SimulatorModel simModel;
         public CommandController()
         {
-            int port = 5402;
+            int port = 12345;
             this.simModel = new SimulatorModel(new TcpClient());
             simModel.Connect("127.0.0.1", port);
         }

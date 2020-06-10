@@ -198,8 +198,8 @@ namespace FlightMobileApp.Models
         // catch the exp if the server ip or port does not exsit 
         public void Connect(string ip, int port)
         {
-            //TCPClient.Connect(ip, port);
-           // this.Start(); //*****thread!!!
+           TCPClient.Connect(ip, port);
+           this.Start(); //*****thread!!!
 
         }
 

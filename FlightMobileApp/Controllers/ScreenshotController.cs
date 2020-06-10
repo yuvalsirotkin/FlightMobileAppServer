@@ -14,9 +14,8 @@ namespace FlightMobileApp.Controllers
     {
 
         private readonly SimulatorModel simModel;
-        public ScreenshotController(SimulatorModel MysimModel)
+        public ScreenshotController()
         {
-            simModel = MysimModel;
         }
 
         // GET: api/Screenshot   -----need to change it to without api

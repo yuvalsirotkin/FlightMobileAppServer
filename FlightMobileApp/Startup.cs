@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using FlightMobileApp.Controllers;
+using FlightMobileApp.Models;
 
 namespace FlightMobileApp
 {
@@ -30,6 +32,11 @@ namespace FlightMobileApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            // bind all Controller classes as singletons
+            services.AddSingleton<CommandController, CommandController>();
+            services.AddSingleton<ScreenshotController, ScreenshotController>();
+            // tell framework to obtain Controller instances from ServiceProvider.
+            services.AddMvc().AddControllersAsServices();
 
         }
 
