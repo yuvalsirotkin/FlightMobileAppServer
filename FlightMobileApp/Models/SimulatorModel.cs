@@ -12,62 +12,31 @@ namespace FlightMobileApp.Models
 {
     public class SimulatorModel
     {
+        IClientSimulator client; 
         // ShouldStop for ShouldStop the thread in the staet method
-        // tcpclient for the comunication with the server
 
-        volatile Boolean ShouldStop;
-        private TcpClient TCPClient;
-        private NetworkStream TCPStream;
-        private List<Byte[]> PostData = new List<Byte[]>();
-        private readonly object bBalanceLock = new object();
-        private readonly object bBalanceLockForImg = new object();
-        private bool ShouldAdd;
-        private bool GerImgReq;
-        //member Error Log
-        private string errlog = "";
-
-        // event
-        public event PropertyChangedEventHandler PropertyChanged;
-        public SimulatorModel(TcpClient T)
+        public SimulatorModel(ClinetSimulator T)
         {
-            this.ShouldStop = false;
-            this.ShouldAdd = true;
-            this.GerImgReq = false;
-            this.TCPClient = T;
-            // Sets the receive time out using the ReceiveTimeout public property.
-            TCPClient.ReceiveTimeout = 10000;
-            // Gets the receive time out using the ReceiveTimeout public property.
-            if (TCPClient.ReceiveTimeout == 10000)
-                Debug.WriteLine("The receive time out limit was successfully set " + TCPClient.ReceiveTimeout.ToString());
+            this.client = T;
         }
-        //property
-        public string Errlog
+
+        public bool SendCommand(Command command)
         {
-            get { return errlog; }
-            set
+            if(SetAileron(command.Aileron) && SetThrottle(command.Throttle) && 
+                SetRudder(command.Rudder) && SetElevator(command.Elevator))
             {
-                errlog = value;
-                NotifyPropertyChanged("Errlog");
+                return true;
             }
-        }
-
-        public void SendCommand(Command command)
-        {
-            SetAileron(command.Aileron);
-            SetThrottle(command.Throttle);
-            SetDirection(command.Rudder, command.Elevator);
+            return false;
         }
 
         public void getScreenshot()
         {
-            lock (bBalanceLockForImg)
-            {
-                this.GerImgReq = true;
-            }
+
         }
         
-        // commands for set the value of aileron ,add the path to the send list
-        public void SetAileron(double aileron)
+        // commands for set the value of aileron and send to flightgear
+        public bool SetAileron(double aileron)
         {
             double value_to_send;
 
@@ -87,20 +56,12 @@ namespace FlightMobileApp.Models
             {
                 value_to_send = 1;
             }
-            string msg = "set /controls/flight/aileron " + value_to_send.ToString() + "\n";
-
-            Byte[] bytes = System.Text.Encoding.ASCII.GetBytes(msg);
-            lock (bBalanceLock)
-            {
-                if (this.ShouldAdd)
-                {
-                    this.PostData.Add(bytes);
-                }
-            }
+            string msg = "set /controls/flight/aileron " + value_to_send.ToString();
+            return (this.client.Write(msg));
         }
 
-        // commands for set the value of throttle ,add the path to the send list
-        public void SetThrottle(double throttle)
+        // commands for set the value of throttle and send to flightgear
+        public bool SetThrottle(double throttle)
         {
             double value_to_send;
 
@@ -121,23 +82,14 @@ namespace FlightMobileApp.Models
                 value_to_send = 1;
             }
 
-            string msg = "set /controls/engines/current-engine/throttle " + value_to_send.ToString() + "\n";
-            Byte[] bytes = System.Text.Encoding.ASCII.GetBytes(msg);
-            lock (bBalanceLock)
-            {
-                if (this.ShouldAdd)
-                {
-                    this.PostData.Add(bytes);
-                }
-
-            }
+            string msg = "set /controls/engines/current-engine/throttle " + value_to_send.ToString();
+            return (this.client.Write(msg));
         }
 
-        // commands for set the value of x_rudder and  y_elevator,add the path to the send list
-        public void SetDirection(double x_rudder, double y_elevator)
+        // commands for set the value of x_rudder and send to flightgear   
+        public bool SetRudder(double x_rudder)
         {
             double value_to_send;
-
             //checking the range value and change it according to x_rudder range
             if (x_rudder < 1)
             {
@@ -155,17 +107,14 @@ namespace FlightMobileApp.Models
                 value_to_send = 1;
             }
 
-            string msg = "set /controls/flight/rudder " + value_to_send.ToString() + "\n";
-            Byte[] bytes = System.Text.Encoding.ASCII.GetBytes(msg);
-            lock (bBalanceLock)
-            {
-                if (this.ShouldAdd)
-                {
-                    this.PostData.Add(bytes);
+            string msg = "set /controls/flight/rudder " + value_to_send.ToString();
+            return (this.client.Write(msg));
+        }
 
-                }
-            }
-
+        // commands for set the value of y_elevator and send to flightgear
+        public bool SetElevator(double y_elevator)
+        {
+            double value_to_send;
             //checking the range value and change it according to y_elevator range
             if (y_elevator < 1)
             {
@@ -182,15 +131,8 @@ namespace FlightMobileApp.Models
             {
                 value_to_send = 1;
             }
-            msg = "set /controls/flight/elevator " + value_to_send.ToString() + "\n";
-            Byte[] bytes2 = System.Text.Encoding.ASCII.GetBytes(msg);
-            lock (bBalanceLock)
-            {
-                if (this.ShouldAdd)
-                {
-                    this.PostData.Add(bytes2);
-                }
-            }
+            string msg = "set /controls/flight/elevator " + value_to_send.ToString();
+            return (this.client.Write(msg));
         }
 
 
@@ -198,84 +140,13 @@ namespace FlightMobileApp.Models
         // catch the exp if the server ip or port does not exsit 
         public void Connect(string ip, int port)
         {
-           TCPClient.Connect(ip, port);
-           this.Start(); //*****thread!!!
-
+           this.client.Connect(ip, port);
         } 
 
         // ShouldStop the thread and log out
         public void Disconnect()
         {
-            TCPClient.Close();
-            this.ShouldStop = true;
-        }
-        public void Start()
-        {
-
-            Thread T = new Thread(delegate ()
-            {
-                this.TCPStream = TCPClient.GetStream();
-                string init = "data\n";
-                Byte[] init_view_data = System.Text.Encoding.ASCII.GetBytes(init);
-                TCPStream.Write(init_view_data, 0, init_view_data.Length);
-                while (!ShouldStop)
-                {
-                    /**
-                     * *************************************
-                     * lock section and send the get request for screen shot from the flight gear!!
-                     * **************************************
-                     */
-                     lock (bBalanceLockForImg)
-                    {
-                        if(this.GerImgReq)
-                        {
-
-                        }
-                    }
-                     /**
-                      * send Post command to flight gear
-                      */
-                    lock (bBalanceLock)
-                    {
-                        try
-                        {
-                            if (this.PostData.Count != 0)
-                            {
-                                int j = 0;
-                                do
-                                {
-
-                                    TCPStream.Write(PostData[j], 0, PostData[j].Length);
-                                    Int32 bytes32 = TCPStream.Read(PostData[j], 0, PostData[j].Length);
-                                    PostData.Remove(PostData[j]);
-
-                                } while (this.PostData.Count != 0);
-                            }
-                        }
-                        // catch if passed 10 sec and the server did not return answer 'update the errLog 
-                        catch (IOException e)
-                        {
-                            Debug.WriteLine(e);
-                            if (e.ToString().Contains("connected party did not properly respond after a period of time"))
-                            {
-                                //Errlog = "Conection Timeout";
-                            }
-                            else
-                            {
-                                Errlog = "error";
-                            }
-                        }
-                    }
-                }
-            });
-            T.Start();
-        }
-
-        // this method activate the observable DP 
-        public void NotifyPropertyChanged(string propName)
-        {
-            if (this.PropertyChanged != null)
-                this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
+            this.client.Disconnect();
         }
     }
 }

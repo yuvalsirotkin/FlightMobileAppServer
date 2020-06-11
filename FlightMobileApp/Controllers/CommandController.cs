@@ -16,19 +16,10 @@ namespace FlightMobileApp.Controllers
         private readonly SimulatorModel simModel;
         public CommandController()
         {
-            int port = 12345;
-            this.simModel = new SimulatorModel(new TcpClient());
+            int port = 5402;
+            this.simModel = new SimulatorModel(new ClinetSimulator(new TcpClient()));
             simModel.Connect("127.0.0.1", port);
         } 
-
-        //Error log property
-        public string VM_Errlog
-        {
-            get
-            {
-                return simModel.Errlog;
-            }
-        }
 
 
         [HttpPost("command")]
@@ -45,8 +36,7 @@ namespace FlightMobileApp.Controllers
                 //return BadRequest();
             }
 
-            simModel.SendCommand(command);
-            if(this.VM_Errlog == "error")
+            if(!(simModel.SendCommand(command)))
             {
                 Response.StatusCode = 422;  // change to the right status code
                 return Content("Invalid data");
