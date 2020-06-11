@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using FlightMobileApp.Models;
 using Microsoft.AspNetCore.Http;
@@ -8,23 +10,26 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FlightMobileApp.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class ScreenshotController : ControllerBase
     {
 
-        private readonly SimulatorModel simModel;
         public ScreenshotController()
-        { 
-        }
-
-        // GET: api/Screenshot   -----need to change it to without api
-        //[HttpGet]
-        /*public ActionResult<image> GetScreenshot(object value)
         {
 
-            simModel.getScreenshot();
+        }
 
-        }*/
+
+        [HttpGet("screenshot")]
+        public  async Task<IActionResult> GetScreenshot()
+        {
+            var client = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(100)
+            };
+            HttpResponseMessage response = await client.GetAsync("http://localhost:8080/screenshot");
+            var image = await response.Content.ReadAsStreamAsync();
+            return File(image, "image/jpg");
+        }
     }
 }

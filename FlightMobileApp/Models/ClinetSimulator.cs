@@ -27,11 +27,11 @@ namespace FlightMobileApp.Models
             {
                 Byte[] bytes = System.Text.Encoding.ASCII.GetBytes(command + "\r\n");
                 TCPStream.Write(bytes, 0, bytes.Length);
-                return true;
+                return true;  //*****check if sucsses to send the msg!!
             } 
             catch (Exception)
             {
-                return false;
+                return false;  //error in sendig msg
             }
 
         }
@@ -45,6 +45,7 @@ namespace FlightMobileApp.Models
         {
             TCPClient.Connect(ip, port);
             TCPStream = TCPClient.GetStream();
+            this.Write("data");
         }
     }
 }
