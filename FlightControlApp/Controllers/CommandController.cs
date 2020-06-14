@@ -14,11 +14,20 @@ namespace FlightControlApp.Controllers
     public class CommandController : ControllerBase
     {
         private readonly SimulatorModel simModel;
+        private bool isConnected = false;
         public CommandController()
         {
-            int port = 5402;
+            int port = 5403;
             this.simModel = new SimulatorModel(new ClinetSimulator(new TcpClient()));
-            simModel.Connect("127.0.0.1", port);
+            try
+            {
+                simModel.Connect("127.0.0.1", port);
+                isConnected = true;
+            }
+            catch (Exception)
+            {
+                isConnected = false;
+            }
         }
 
 
@@ -36,7 +45,13 @@ namespace FlightControlApp.Controllers
                 //return BadRequest();
             }
 
-            if (!(simModel.SendCommand(command)))
+            if (!this.isConnected)
+            {
+                Response.StatusCode = 422;  // change to the right status code
+                return Content("No Connection");
+
+            }
+            else if(!(simModel.SendCommand(command)))
             {
                 Response.StatusCode = 422;  // change to the right status code
                 return Content("Invalid data");
