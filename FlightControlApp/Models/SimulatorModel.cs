@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
-using System.IO;
-using System.ComponentModel;
 
-namespace FlightMobileApp.Models
+namespace FlightControlApp.Models
 {
     public class SimulatorModel
     {
-        IClientSimulator client; 
+        IClientSimulator client;
         // ShouldStop for ShouldStop the thread in the staet method
 
         public SimulatorModel(ClinetSimulator T)
@@ -22,7 +17,7 @@ namespace FlightMobileApp.Models
 
         public bool SendCommand(Command command)
         {
-            if(SetAileron(command.Aileron) && SetThrottle(command.Throttle) && 
+            if (SetAileron(command.Aileron) && SetThrottle(command.Throttle) &&
                 SetRudder(command.Rudder) && SetElevator(command.Elevator))
             {
                 return true;
@@ -34,7 +29,7 @@ namespace FlightMobileApp.Models
         {
 
         }
-        
+
         // commands for set the value of aileron and send to flightgear
         public bool SetAileron(double aileron)
         {
@@ -140,8 +135,8 @@ namespace FlightMobileApp.Models
         // catch the exp if the server ip or port does not exsit 
         public void Connect(string ip, int port)
         {
-           this.client.Connect(ip, port);
-        } 
+            this.client.Connect(ip, port);
+        }
 
         // ShouldStop the thread and log out
         public void Disconnect()

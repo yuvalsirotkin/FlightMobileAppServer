@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Routing.Constraints;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace FlightMobileApp.Models
+namespace FlightControlApp.Models
 {
     public class Command
     {
@@ -16,7 +14,7 @@ namespace FlightMobileApp.Models
         [JsonPropertyName("aileron")]
         public double Aileron { get; set; }
 
-        [JsonProperty("rudder")] 
+        [JsonProperty("rudder")]
         [JsonPropertyName("rudder")]
         public double Rudder { get; set; }
 

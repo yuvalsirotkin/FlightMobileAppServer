@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Threading.Tasks;
-using FlightMobileApp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FlightMobileApp.Controllers
+namespace FlightControlApp.Controllers
 {
     [ApiController]
     public class ScreenshotController : ControllerBase
@@ -21,7 +19,7 @@ namespace FlightMobileApp.Controllers
 
 
         [HttpGet("screenshot")]
-        public  async Task<IActionResult> GetScreenshot()
+        public async Task<IActionResult> GetScreenshot()
         {
             var client = new HttpClient
             {

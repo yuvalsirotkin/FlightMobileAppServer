@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using FlightMobileApp.Models;
+using FlightControlApp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FlightMobileApp.Controllers
+namespace FlightControlApp.Controllers
 {
     [Route("api")]
     [ApiController]
@@ -19,7 +19,7 @@ namespace FlightMobileApp.Controllers
             int port = 5402;
             this.simModel = new SimulatorModel(new ClinetSimulator(new TcpClient()));
             simModel.Connect("127.0.0.1", port);
-        } 
+        }
 
 
         [HttpPost("command")]
@@ -36,11 +36,11 @@ namespace FlightMobileApp.Controllers
                 //return BadRequest();
             }
 
-            if(!(simModel.SendCommand(command)))
+            if (!(simModel.SendCommand(command)))
             {
                 Response.StatusCode = 422;  // change to the right status code
                 return Content("Invalid data");
-            } 
+            }
             else
             {
                 return Ok(); // check that

@@ -5,14 +5,14 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace FlightMobileApp.Models
+namespace FlightControlApp.Models
 {
     public class ClinetSimulator : IClientSimulator
     {
         // tcpclient for the comunication with the server
         private TcpClient TCPClient;
         private NetworkStream TCPStream;
-        public ClinetSimulator (TcpClient T)
+        public ClinetSimulator(TcpClient T)
         {
             this.TCPClient = T;
             // Sets the receive time out using the ReceiveTimeout public property.
@@ -25,10 +25,17 @@ namespace FlightMobileApp.Models
         {
             try
             {
+                Byte[] getMsg = new byte[256]; ;
                 Byte[] bytes = System.Text.Encoding.ASCII.GetBytes(command + "\r\n");
                 TCPStream.Write(bytes, 0, bytes.Length);
+                Int32 bytes32 = TCPStream.Read(getMsg, 0, getMsg.Length);
+                String responseData = System.Text.Encoding.ASCII.GetString(getMsg, 0, bytes32);
+                /*if(responseData == "ERR") // CHECK THE STRING THAT RETURN FORM THE FG.
+                {
+                    throw new Exception();
+                }*/
                 return true;  //*****check if sucsses to send the msg!!
-            } 
+            }
             catch (Exception)
             {
                 return false;  //error in sendig msg
