@@ -25,11 +25,11 @@ namespace FlightControlApp.Models
         {
             try
             {
-                Byte[] getMsg = new byte[256]; ;
+                Byte[] getMsg = new byte[256];
                 Byte[] bytes = System.Text.Encoding.ASCII.GetBytes(command + "\r\n");
                 TCPStream.Write(bytes, 0, bytes.Length);
-                Int32 bytes32 = TCPStream.Read(getMsg, 0, getMsg.Length);
-                String responseData = System.Text.Encoding.ASCII.GetString(getMsg, 0, bytes32);
+                //Int32 bytes32 = TCPStream.Read(getMsg, 0, getMsg.Length);
+                //String responseData = System.Text.Encoding.ASCII.GetString(getMsg, 0, bytes32);
                 /*if(responseData == "ERR") // CHECK THE STRING THAT RETURN FORM THE FG.
                 {
                     throw new Exception();
