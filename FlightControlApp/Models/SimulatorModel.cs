@@ -1,147 +1,106 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace FlightControlApp.Models
 {
-    public class SimulatorModel
+    public class SimulatorModel : IModel 
     {
         IClientSimulator client;
+        private readonly BlockingCollection<AsyncCommand> _queue;
+        private bool isConnected = false;
+        private bool shouldStop = false;
+
         // ShouldStop for ShouldStop the thread in the staet method
 
-        public SimulatorModel(ClinetSimulator T)
+        public SimulatorModel()
         {
-            this.client = T;
-        }
-
-        public bool SendCommand(Command command)
-        {
-            if (SetAileron(command.Aileron) && SetThrottle(command.Throttle) &&
-                SetRudder(command.Rudder) && SetElevator(command.Elevator))
+            _queue = new BlockingCollection<AsyncCommand>();
+            this.client = new ClinetSimulator(new TcpClient());
+            try
             {
-                return true;
+                Connect("127.0.0.1", 5403);
+                isConnected = true;
             }
-            return false;
-        }
+            catch (Exception)
+            {
+                isConnected = false;
+            }
 
-        public void getScreenshot()
-        {
 
         }
 
-        // commands for set the value of aileron and send to flightgear
-        public bool SetAileron(double aileron)
+        // Called by the WebApi Controller, it will await on the returned Task<>
+        // This is not an async method, since it does not await anything.
+        public Task<Result> Execute(Command cmd)
         {
-            double value_to_send;
-
-            //checking the range value and change it according to aileron range
-            if (aileron < 1)
-            {
-                if (aileron > -1)
-                {
-                    value_to_send = aileron;
-                }
-                else
-                {
-                    value_to_send = -1;
-                }
-            }
-            else
-            {
-                value_to_send = 1;
-            }
-            string msg = "set /controls/flight/aileron " + value_to_send.ToString();
-            return (this.client.Write(msg));
+            var asyncCommand = new AsyncCommand(cmd);
+            _queue.Add(asyncCommand);
+            return asyncCommand.Task;
         }
-
-        // commands for set the value of throttle and send to flightgear
-        public bool SetThrottle(double throttle)
-        {
-            double value_to_send;
-
-            //checking the range value and change it according to throttle range
-            if (throttle < 1)
-            {
-                if (throttle > 0)
-                {
-                    value_to_send = throttle;
-                }
-                else
-                {
-                    value_to_send = 0;
-                }
-            }
-            else
-            {
-                value_to_send = 1;
-            }
-
-            string msg = "set /controls/engines/current-engine/throttle " + value_to_send.ToString();
-            return (this.client.Write(msg));
-        }
-
-        // commands for set the value of x_rudder and send to flightgear   
-        public bool SetRudder(double x_rudder)
-        {
-            double value_to_send;
-            //checking the range value and change it according to x_rudder range
-            if (x_rudder < 1)
-            {
-                if (x_rudder > -1)
-                {
-                    value_to_send = x_rudder;
-                }
-                else
-                {
-                    value_to_send = -1;
-                }
-            }
-            else
-            {
-                value_to_send = 1;
-            }
-
-            string msg = "set /controls/flight/rudder " + value_to_send.ToString();
-            return (this.client.Write(msg));
-        }
-
-        // commands for set the value of y_elevator and send to flightgear
-        public bool SetElevator(double y_elevator)
-        {
-            double value_to_send;
-            //checking the range value and change it according to y_elevator range
-            if (y_elevator < 1)
-            {
-                if (y_elevator > -1)
-                {
-                    value_to_send = y_elevator;
-                }
-                else
-                {
-                    value_to_send = -1;
-                }
-            }
-            else
-            {
-                value_to_send = 1;
-            }
-            string msg = "set /controls/flight/elevator " + value_to_send.ToString();
-            return (this.client.Write(msg));
-        }
-
 
         //create connection with the server(simulator)
         // catch the exp if the server ip or port does not exsit 
         public void Connect(string ip, int port)
         {
             this.client.Connect(ip, port);
+            Start();
         }
 
         // ShouldStop the thread and log out
         public void Disconnect()
         {
             this.client.Disconnect();
+            this.shouldStop = true;
+        }
+
+        public void Start()
+        {
+            Task.Factory.StartNew(ProcessCommands);
+        }
+
+        public void ProcessCommands()
+        {
+            while (! this.shouldStop)
+            {
+                foreach (AsyncCommand command in _queue.GetConsumingEnumerable())
+                {
+
+                    string ailron = "set /controls/flight/aileron " + command.Command.Aileron.ToString();
+                    string thortle = "set /controls/engines/current-engine/throttle " + command.Command.Throttle.ToString();
+                    string elvetor = "set /controls/flight/elevator " + command.Command.Elevator.ToString();
+                    string rudder = "set /controls/flight/rudder " + command.Command.Rudder.ToString();
+                    string ailronGet = "get /controls/flight/aileron";
+                    string thortleGet = "get /controls/engines/current-engine/throttle";
+                    string elvetorGet = "get /controls/flight/elevator";
+                    string rudderGet = "get /controls/flight/rudder";
+                    bool c1 = this.client.WriteSet(ailron);
+                    bool c2 = this.client.WriteSet(thortle);
+                    bool c3 = this.client.WriteSet(elvetor);
+                    bool c4 = this.client.WriteSet(rudder);
+                    bool c5 = this.client.WriteGet(ailronGet);
+                    bool c6 = this.client.WriteGet(thortleGet);
+                    bool c7 = this.client.WriteGet(elvetorGet);
+                    bool c8 = this.client.WriteGet(rudderGet);
+                    // recvBuffer to Result
+                    // TaskCompletionSource allows an external thread to set
+                    // the result (or the exceptino) on the associated task object
+                    Result res;
+                    if (!c1 || !c2 || !c3 || !c4 || !c5 || !c6 || !c7 || !c8)
+                    {
+                        res = Result.NotOk;
+                    }
+                    else
+                    {
+                        res = Result.Ok;
+                    }
+                    command.Completion.SetResult(res);
+                }
+            }
         }
     }
 }

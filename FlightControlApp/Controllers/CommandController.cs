@@ -13,28 +13,17 @@ namespace FlightControlApp.Controllers
     [ApiController]
     public class CommandController : ControllerBase
     {
-        private readonly SimulatorModel simModel;
-        private bool isConnected = false;
-        public CommandController()
+
+        private IModel SimModel;
+        public CommandController(IModel Model)
         {
-            int port = 5403;
-            this.simModel = new SimulatorModel(new ClinetSimulator(new TcpClient()));
-            try
-            {
-                simModel.Connect("127.0.0.1", port);
-                isConnected = true;
-            }
-            catch (Exception)
-            {
-                isConnected = false;
-            }
+            this.SimModel = Model;
         }
 
 
         [HttpPost("command")]
-        public ActionResult PostCommand(Command command)
+        public async Task<ActionResult> PostCommandAsync(Command command)
         {
-            // if the data is invalid - return error         ------------------------change to command invalid test
             if (command.Throttle > 1 || command.Throttle < 0 ||
                 command.Aileron > 1 || command.Aileron < -1 ||
                 command.Elevator > 1 || command.Elevator < -1 ||
@@ -44,22 +33,12 @@ namespace FlightControlApp.Controllers
                 return Content("Invalid data");
                 //return BadRequest();
             }
-
-            if (!this.isConnected)
+            var myResult = await  this.SimModel.Execute(command);
+            if(myResult == Result.Ok)
             {
-                Response.StatusCode = 422;  // change to the right status code
-                return Content("No Connection");
-
+                return Ok();
             }
-            else if(!(simModel.SendCommand(command)))
-            {
-                Response.StatusCode = 422;  // change to the right status code
-                return Content("Invalid data");
-            }
-            else
-            {
-                return Ok(); // check that
-            }
+            return NotFound();
         }
 
 

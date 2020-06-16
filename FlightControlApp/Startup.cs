@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FlightControlApp.Controllers;
+using FlightControlApp.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -27,10 +28,11 @@ namespace FlightControlApp
         {
             services.AddControllers();
             // bind all Controller classes as singletons
-            services.AddSingleton<CommandController, CommandController>();
-            services.AddSingleton<ScreenshotController, ScreenshotController>();
+            services.AddSingleton<IModel, SimulatorModel>();
             // tell framework to obtain Controller instances from ServiceProvider.
             services.AddMvc().AddControllersAsServices();
+
+
 
         }
 

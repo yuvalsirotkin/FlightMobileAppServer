@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FlightControlApp.Models
 {
     public class ClinetSimulator : IClientSimulator
     {
+
+
         // tcpclient for the comunication with the server
         private TcpClient TCPClient;
         private NetworkStream TCPStream;
@@ -21,20 +24,13 @@ namespace FlightControlApp.Models
             if (TCPClient.ReceiveTimeout == 10000)
                 Debug.WriteLine("The receive time out limit was successfully set " + TCPClient.ReceiveTimeout.ToString());
         }
-        public bool Write(string command)
+        public bool WriteSet(string command)
         {
             try
             {
-                Byte[] getMsg = new byte[256];
                 Byte[] bytes = System.Text.Encoding.ASCII.GetBytes(command + "\r\n");
                 TCPStream.Write(bytes, 0, bytes.Length);
-                //Int32 bytes32 = TCPStream.Read(getMsg, 0, getMsg.Length);
-                //String responseData = System.Text.Encoding.ASCII.GetString(getMsg, 0, bytes32);
-                /*if(responseData == "ERR") // CHECK THE STRING THAT RETURN FORM THE FG.
-                {
-                    throw new Exception();
-                }*/
-                return true;  //*****check if sucsses to send the msg!!
+                return true;
             }
             catch (Exception)
             {
@@ -42,6 +38,23 @@ namespace FlightControlApp.Models
             }
 
         }
+        public bool WriteGet(string command)
+        {
+            Byte[] getMsg = new byte[256];
+            try
+            {
+                Byte[] bytes = Encoding.ASCII.GetBytes(command + "\r\n");
+                TCPStream.Write(bytes, 0, bytes.Length);
+                TCPStream.Read(getMsg, 0, getMsg.Length);
+                double value = Convert.ToDouble(Encoding.UTF8.GetString(getMsg));
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;  //error in sendig msg
+            }
+        }
+
 
         public void Disconnect()
         {
@@ -52,7 +65,8 @@ namespace FlightControlApp.Models
         {
             TCPClient.Connect(ip, port);
             TCPStream = TCPClient.GetStream();
-            this.Write("data");
+            Byte[] bytes = System.Text.Encoding.ASCII.GetBytes("data\n");
+            TCPStream.Write(bytes, 0, bytes.Length);
         }
     }
 }

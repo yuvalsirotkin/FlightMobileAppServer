@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 
 namespace FlightControlApp.Models
 {
-    interface IClientSimulator
+    public interface IClientSimulator
     {
-        public bool Write(string command);
+        public bool WriteSet(string command);
+        public bool WriteGet(string command);
         public void Disconnect();
         public void Connect(string ip, int port);
     }
