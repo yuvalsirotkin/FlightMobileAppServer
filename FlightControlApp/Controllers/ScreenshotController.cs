@@ -5,16 +5,21 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace FlightControlApp.Controllers
 {
     [ApiController]
     public class ScreenshotController : ControllerBase
     {
-
-        public ScreenshotController()
+        private readonly IConfiguration MyConfig;
+        private int Port;
+        private string Ip;
+        public ScreenshotController(IConfiguration config)
         {
-
+            MyConfig = config;
+            this.Ip = MyConfig.GetValue<string>("Logging:SimulatorInfo:IP");
+            this.Port = MyConfig.GetValue<int>("Logging:SimulatorInfo:HttpPort");
         }
 
 
@@ -25,7 +30,7 @@ namespace FlightControlApp.Controllers
             {
                 Timeout = TimeSpan.FromSeconds(100)
             };
-            HttpResponseMessage response = await client.GetAsync("http://localhost:8080/screenshot");
+            HttpResponseMessage response = await client.GetAsync("http://"+this.Ip+":"+this.Port.ToString()+"/screenshot");
             var image = await response.Content.ReadAsStreamAsync();
             return File(image, "image/jpg");
         }

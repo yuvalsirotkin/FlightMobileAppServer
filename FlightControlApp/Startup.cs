@@ -27,8 +27,11 @@ namespace FlightControlApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            // bind all Controller classes as singletons
-            services.AddSingleton<IModel, SimulatorModel>();
+            string IP = Configuration.GetValue<string>("Logging:SimulatorInfo:IP");
+            int telnetPort = Configuration.GetValue<int>("Logging:SimulatorInfo:TelnetPort");
+            IModel commandManager = new SimulatorModel(telnetPort, IP);
+            // bind all model classes as singletons
+            services.AddSingleton(commandManager);
             // tell framework to obtain Controller instances from ServiceProvider.
             services.AddMvc().AddControllersAsServices();
 
@@ -43,8 +46,6 @@ namespace FlightControlApp
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 

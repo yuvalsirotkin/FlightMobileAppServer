@@ -17,21 +17,19 @@ namespace FlightControlApp.Models
 
         // ShouldStop for ShouldStop the thread in the staet method
 
-        public SimulatorModel()
+        public SimulatorModel(int port, string ip)
         {
             _queue = new BlockingCollection<AsyncCommand>();
             this.client = new ClinetSimulator(new TcpClient());
             try
             {
-                Connect("127.0.0.1", 5403);
+                Connect(ip, port);
                 isConnected = true;
             }
             catch (Exception)
             {
                 isConnected = false;
             }
-
-
         }
 
         // Called by the WebApi Controller, it will await on the returned Task<>
