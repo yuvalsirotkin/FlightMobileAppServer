@@ -9,5 +9,7 @@ namespace FlightControlApp.Models
     {
         public Task<Result> Execute(Command cmd);
 
+        public bool isConnected { get; }
+
     }
 }

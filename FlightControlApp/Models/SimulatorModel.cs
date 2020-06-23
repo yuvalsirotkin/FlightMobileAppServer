@@ -12,7 +12,7 @@ namespace FlightControlApp.Models
     {
         IClientSimulator client;
         private readonly BlockingCollection<AsyncCommand> _queue;
-        private bool isConnected = false;
+        public bool isConnected { get; }
         private bool shouldStop = false;
 
         // ShouldStop for ShouldStop the thread in the staet method

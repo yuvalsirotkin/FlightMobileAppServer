@@ -24,6 +24,10 @@ namespace FlightControlApp.Controllers
         [HttpPost("command")]
         public async Task<ActionResult> PostCommandAsync(Command command)
         {
+            if (!this.SimModel.isConnected)
+            {
+                return NotFound("Failed Connection1");
+            }
             if (command.Throttle > 1 || command.Throttle < 0 ||
                 command.Aileron > 1 || command.Aileron < -1 ||
                 command.Elevator > 1 || command.Elevator < -1 ||
@@ -38,7 +42,7 @@ namespace FlightControlApp.Controllers
             {
                 return Ok();
             }
-            return NotFound();
+            return NotFound("Failed Connection2");
         }
     }
 }

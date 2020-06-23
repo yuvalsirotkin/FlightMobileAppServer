@@ -28,6 +28,10 @@ namespace FlightControlApp.Models
         {
             try
             {
+                if (!this.TCPClient.Connected)
+                {
+                    throw new Exception();
+                }
                 Byte[] bytes = System.Text.Encoding.ASCII.GetBytes(command + "\r\n");
                 TCPStream.Write(bytes, 0, bytes.Length);
                 return true;
@@ -43,6 +47,10 @@ namespace FlightControlApp.Models
             Byte[] getMsg = new byte[256];
             try
             {
+                if(!this.TCPClient.Connected)
+                {
+                    throw new Exception();
+                }
                 Byte[] bytes = Encoding.ASCII.GetBytes(command + "\r\n");
                 TCPStream.Write(bytes, 0, bytes.Length);
                 TCPStream.Read(getMsg, 0, getMsg.Length);

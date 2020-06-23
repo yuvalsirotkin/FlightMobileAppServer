@@ -30,9 +30,21 @@ namespace FlightControlApp.Controllers
             {
                 Timeout = TimeSpan.FromSeconds(100)
             };
-            HttpResponseMessage response = await client.GetAsync("http://"+this.Ip+":"+this.Port.ToString()+"/screenshot");
-            var image = await response.Content.ReadAsStreamAsync();
-            return File(image, "image/jpg");
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync("http://" + this.Ip + ":" + this.Port.ToString() + "/screenshot");
+                var image = await response.Content.ReadAsStreamAsync();
+                if (image == null)
+                {
+                    return NotFound(0);
+                }
+                return File(image, "image/jpg");
+            } catch 
+            {
+                return NotFound("not found screenShot");
+            }
+
+
         }
     }
 }
