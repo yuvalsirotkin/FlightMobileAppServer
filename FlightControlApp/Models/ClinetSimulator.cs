@@ -22,7 +22,8 @@ namespace FlightControlApp.Models
             TCPClient.ReceiveTimeout = 10000;
             // Gets the receive time out using the ReceiveTimeout public property.
             if (TCPClient.ReceiveTimeout == 10000)
-                Debug.WriteLine("The receive time out limit was successfully set " + TCPClient.ReceiveTimeout.ToString());
+                Debug.WriteLine("The receive time out limit was successfully set " +
+                    TCPClient.ReceiveTimeout.ToString());
         }
         public bool WriteSet(string command)
         {

@@ -12,18 +12,18 @@ namespace FlightControlApp.Models
 
         [JsonProperty("aileron")]
         [JsonPropertyName("aileron")]
-        public double Aileron { get; set; }
+        public Double Aileron { get; set; } = -2;
 
         [JsonProperty("rudder")]
         [JsonPropertyName("rudder")]
-        public double Rudder { get; set; }
+        public Double Rudder { get; set; } = -2;
 
         [JsonProperty("elevator")]
         [JsonPropertyName("elevator")]
-        public double Elevator { get; set; }
+        public Double Elevator { get; set; } = -2;
 
         [JsonProperty("throttle")]
         [JsonPropertyName("throttle")]
-        public double Throttle { get; set; }
+        public Double Throttle { get; set; } = -2;
     }
 }

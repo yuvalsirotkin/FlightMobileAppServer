@@ -63,15 +63,19 @@ namespace FlightControlApp.Models
 
         public void ProcessCommands()
         {
-            while (! this.shouldStop)
+            while (! this.shouldStop) //LOOP ALL THE TIME THE FLGIHT GEAR ON FLY. 
             {
                 foreach (AsyncCommand command in _queue.GetConsumingEnumerable())
                 {
 
-                    string ailron = "set /controls/flight/aileron " + command.Command.Aileron.ToString();
-                    string thortle = "set /controls/engines/current-engine/throttle " + command.Command.Throttle.ToString();
-                    string elvetor = "set /controls/flight/elevator " + command.Command.Elevator.ToString();
-                    string rudder = "set /controls/flight/rudder " + command.Command.Rudder.ToString();
+                    string ailron = "set /controls/flight/aileron " +
+                        command.Command.Aileron.ToString();
+                    string thortle = "set /controls/engines/current-engine/throttle " +
+                        command.Command.Throttle.ToString();
+                    string elvetor = "set /controls/flight/elevator " +
+                        command.Command.Elevator.ToString();
+                    string rudder = "set /controls/flight/rudder " +
+                        command.Command.Rudder.ToString();
                     string ailronGet = "get /controls/flight/aileron";
                     string thortleGet = "get /controls/engines/current-engine/throttle";
                     string elvetorGet = "get /controls/flight/elevator";

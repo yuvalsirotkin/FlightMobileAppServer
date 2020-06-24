@@ -32,7 +32,8 @@ namespace FlightControlApp.Controllers
             };
             try
             {
-                HttpResponseMessage response = await client.GetAsync("http://" + this.Ip + ":" + this.Port.ToString() + "/screenshot");
+                HttpResponseMessage response = await client.GetAsync
+                    ("http://" + this.Ip + ":" + this.Port.ToString() + "/screenshot");
                 var image = await response.Content.ReadAsStreamAsync();
                 if (image == null)
                 {
